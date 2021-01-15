@@ -77,7 +77,8 @@
   </head>
   <body>
     <script>
-      let ws = new WebSocket(`wss://${window.location.host}/ws`);
+      let host = window.location.host === "prowe.ca" ? "prowe-deno-chat.herokuapp.com"
+      let ws = new WebSocket(`wss://${host}/ws`);
       ws.addEventListener("message", ({ data }) => {
         console.log(data);
       });
