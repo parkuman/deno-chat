@@ -77,7 +77,10 @@
   </head>
   <body>
     <script>
-      let host = window.location.host === "prowe.ca" ? "prowe-deno-chat.herokuapp.com"
+      let host =
+        window.location.host === "prowe.ca"
+          ? "prowe-deno-chat.herokuapp.com"
+          : window.location.host;
       let ws = new WebSocket(`wss://${host}/ws`);
       ws.addEventListener("message", ({ data }) => {
         console.log(data);
