@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>PChat</title>
+    <title>Parker Rowe | Chat</title>
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦕</text></svg>"
@@ -13,14 +13,6 @@
         font-family: monospace;
         margin: 0;
         padding: 0;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        html,
-        body {
-          background-color: #222222;
-          color: white;
-        }
       }
 
       nav {
@@ -68,24 +60,55 @@
         transition-timing-function: cubic-bezier(0.47, 2.02, 0.31, -0.36);
       }
 
+      form {
+        margin-top: 20px;
+      }
+
+      #send-button {
+        border: none;
+        background-color: #ddd;
+        padding: 10px 20px;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+
+      #text-box {
+        border: none;
+        background-color: #ddd;
+        padding: 10px;
+        width: 50%;
+        margin-right: 10px;
+      }
+
+      .message {
+        padding: 10px 0;
+      }
+
+      #chat {
+        display: flex;
+        flex-direction: column;
+      }
+
       .app {
         margin: 0 auto;
         max-width: 80%;
-        text-align: center;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        html,
+        body {
+          background-color: #222222;
+          color: white;
+        }
+
+        #text-box {
+          background-color: black;
+          color: white;
+        }
       }
     </style>
   </head>
   <body>
-    <script>
-      let host =
-        window.location.host === "prowe.ca"
-          ? "prowe-deno-chat.herokuapp.com"
-          : window.location.host;
-      let ws = new WebSocket(`wss://${host}/ws`);
-      ws.addEventListener("message", ({ data }) => {
-        console.log(data);
-      });
-    </script>
     <nav>
       <a>
         🦕
@@ -97,6 +120,60 @@
     </nav>
     <div class="app">
       <h1>Chat App</h1>
+      <div id="chat"></div>
     </div>
+    <script type="module">
+      import {
+        html,
+        render,
+        useState,
+        useEffect,
+      } from "https://unpkg.com/htm/preact/standalone.module.js";
+
+      let ws;
+
+      function Chat() {
+        const [messages, setMessages] = useState([]);
+        const onSendMessage = (e) => {
+          const msg = e.target[0].value;
+
+          e.preventDefault();
+          ws.send(msg);
+          e.target[0].value = "";
+        };
+        const onReceiveMessage = ({ data }) => {
+          console.log(data);
+          setMessages((m) => [...m, data]);
+        };
+
+        useEffect(() => {
+          if (ws) ws.close();
+          let host =
+            window.location.host === "prowe.ca"
+              ? "prowe-deno-chat.herokuapp.com"
+              : window.location.host;
+          ws = new WebSocket(`wss://${host}/ws`);
+          ws.addEventListener("message", onReceiveMessage);
+
+          // clean up on component unmount
+          return () => {
+            ws.removeEventListener("message", onReceiveMessage);
+          };
+        }, []);
+
+        return html`
+          ${messages.map(
+            (message) => html` <div class="message">${message}</div> `
+          )}
+
+          <form onSubmit=${onSendMessage}>
+            <input placeholder="enter message to send" id="text-box" type="text" />
+            <button id="send-button">Send</button>
+          </form>
+        `;
+      }
+
+      render(html`<${Chat} />`, document.getElementById("chat"));
+    </script>
   </body>
 </html>
