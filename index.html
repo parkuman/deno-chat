@@ -77,7 +77,7 @@
   </head>
   <body>
     <script>
-      let ws = new WebSocket(`ws://${window.location.host}/ws`);
+      let ws = new WebSocket(`wss://${window.location.host}/ws`);
       ws.addEventListener("message", ({ data }) => {
         console.log(data);
       });
