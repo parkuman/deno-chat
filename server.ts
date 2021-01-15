@@ -15,7 +15,7 @@ listenAndServe({ port }, async (req) => {
       headers: new Headers({
         "content-type": "text/html",
       }),
-      body: await Deno.open("./index.html"),
+      body: await Deno.open("./dist/index.html"),
     });
   }
 
